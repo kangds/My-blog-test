@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<head>
+<title>注册</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="http://cdn.bootcss.com/twitter-bootstrap/2.3.2/css/bootstrap.min.css">
+
+  </head>
+  <body>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="http://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="http://cdn.bootcss.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+  </body>
+
+   <head>
+   
+   <link rel="stylesheet" type="text/css" href="dist/css/bootstrap.min.css">
+    <script src="dist/jquery-1.11.1.js"></script>
+    <script src="dist/js/bootstrap.min.js"></script>
+    </head>
+
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span12">
+			<h1 class="muted">
+				<img alt="" src="http://localhost:8000/static/img/hzau.png" width="250" height="400" />Our blog
+			</h1>
+			<div>
+				<h3 class="text-right">
+					华中农业大学理学院信息与计算科学2011级1班班级博客共享平台
+				</h3>
+			</div>
+			<p>
+				用户注册
+			</p>
+			<p>
+				亲～～～现在填写完下面的信息你就注册结束了，咱们全班在这里等你呢，快点．．．
+				<a href="/login">以有帐号直接登录</a>
+			</p>
+
+			<form action="/login" method="get">
+			<p>邮　　　　箱：*<input name="Uemail" type="email" required="required" value="--请输入账户名--">
+                     <font color="#FF0000">*你的个人邮箱</font>
+                     </p>
+
+			<p>密　　　　码：*<input name="Upassword" type="password" required="required" value="数字和字母的结合">
+			<font color="#FF0000">*字母和数字的结合</font>
+			</p>
+
+			<p>密码　　确认：*<input name="Upassword" type="password" required="required" value="重新输入上面的密码">
+			<font color="#FF0000">*重复上面的密码</font>
+			</p>
+
+			<p>姓　　　　名：*<input name="Uname" type="text" required="required"></p>
+
+			<p>学　　　　号　:　<input name="Uage" type="number">　</p>
+
+			<p>电　　　　话:　<input name="Uphone" type="number">　</p>
+
+			<p>籍　　　　贯:　<input name="Ulocation" type="text"></p>
+
+			<p>年　　　　龄:　<input name="Uage" type="text">　</p>
+
+			<p>性　　　　别:　<input name="Usex" type="radio" value="nan" checked="checked">男
+			<input type="radio" name="Usex" value="nv">女
+			</p>
+
+			<p>目前所在城市:　<input name="Ucity" type="text"></p>
+
+			<p>爱 　　　　好:　<input name="Uhobby" type="text"></p>
+
+			<p><input type="submit" value="注册" class="btn"></p>
+
+			<p>注：带＊号的为必填项</p>
+
+			</form>
+		</div>
+	</div>
+</div>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<p align="center" >
+<script language=JavaScript> 
+today = new Date(); 
+function initArray(){ 
+this.length = initArray.arguments.length 
+for(var i = 0;i<this.length;i++) 
+this[i+1] = initArray.arguments[i]} 
+var d=new initArray( 
+"星期日", 
+"星期一", 
+"星期二", 
+"星期三", 
+"星期四", 
+"星期五", 
+"星期六"); 
+document.write( 
+"<font color=#FF6600 style='font-size:15pt;font-family:'宋体' '>" , 
+today.getYear()+1900,"年", 
+today.getMonth()+1,"月", 
+today.getDate(),"日 ", 
+d[today.getDay()+1], 
+"</font>");
+</script> 
+</p>
+          <p align="center" >
+          <font color=#FF6600 style='font-size:15pt;font-family:'宋体' '>
+          ©小亢的作品
+          </font>
+          </p>  
