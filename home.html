@@ -1,13 +1,13 @@
 <!DOCTYPE html>
+
 <head>
 <title>our blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap -->
     <link rel="stylesheet" href="http://cdn.bootcss.com/twitter-bootstrap/2.3.2/css/bootstrap.min.css">
+  </head> 
 
-  </head>
   <body>
-
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="http://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
@@ -25,7 +25,7 @@
 	<div class="row-fluid">
 		<div class="span12">
 			<h1 class="muted">
-				<img alt="" src="http://localhost:8000/static/img/hzau.png" width="250" height="400" /><strong>Our blog</strong>
+				<a href="www.hzau.edu.cn"><img alt="华中农业大学logo" src="http://localhost:8000/static/img/hzau.png" width="250" height="400" /><strong>Our blog</strong>
 			</h1>
 			<div>
 				<h3 class="text-right">
@@ -143,7 +143,7 @@
 			</tr>
 			<tr>
 				<td>陈建业</td>
-				<td>山东昌邑</td>
+				<td>山东潍坊</td>
 				<td>高燕</td>
 				<td>湖北荆州</td>
 			</tr>
@@ -185,7 +185,7 @@
 			</tr>
 			<tr>
 				<td>胡曹园</td>
-				<td>江苏温州</td>
+				<td>浙江温州</td>
 				<td>严承贇</td>
 				<td>浙江丽水</td>
 			</tr>
@@ -272,10 +272,14 @@
 			</div>
 			<label>大家的博客</label>
 				<div class="span6">
-				{% for article in article_doc%}
+				{% for aid in article_doc%}
 				<h2>title:{{article['title']}}</h2>
+				<p>作者: {{author}}                     时间：{{time}} </p>
+				<!--
 				<p><h2>article:</h2>{{article['article']}}</p>
 				<p><h2>commit:</h2>{{article['commit']}}</p>
+				-->
+				<hr>
 				{%end%}
 				</div>
 
