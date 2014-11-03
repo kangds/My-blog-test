@@ -1,6 +1,8 @@
 # -*- coding: UTF-8 -*-
 
-import datatime
+import datetime
+import logging
+import setting
 
 import os.path
 import tornado.httpserver
@@ -15,6 +17,7 @@ define("port", default=8000, help="run on the given port", type=int)
 
 
 class Application(tornado.web.Application):
+
     def __init__(self):
         handlers = [
         (r'/', HomeHandler),
@@ -26,10 +29,11 @@ class Application(tornado.web.Application):
         (r'/user', UserHandler),
         (r'/commit', CommitHandler),
         ]
+
         settings = dict(
             template_path=os.path.join(os.path.dirname(__file__), ""),
             static_path=os.path.join(os.path.dirname(__file__), "static"),
-            debug=True,        
+            debug=seting .DEBUG,        
      ) 
      
 
@@ -40,20 +44,20 @@ class Application(tornado.web.Application):
         tornado.web.Application.__init__(self,handlers,**settings)
 
 
-def init_logging(console=0):
-
-    if console:
-        fh = logging.StreamHandler()
-    else:
-        fh = logging.handlers.RotatingFileHandler('%s%s' % (setting.LOG_PATH, setting.LOG_FILENAME),
-                maxBytes=500*1024*1024,
-                backupCount=3)
-        formatter = logging.Formatter('%(levelname)-8s %(asctime)s %(module)s:%(lineno)d:%(funcName)s %(message)s')
-        fh.setFormatter(formatter)
-
-    root_logger = logging.getLogger()
-    root_logger.addHandler(fh)
-    root_logger.setLevel(setting.LOG_LEVEL)
+#def init_logging(console=0):
+#
+#    if console:
+#        fh = logging.StreamHandler()
+#    else:
+#        fh = logging.handlers.RotatingFileHandler('%s%s' % (setting.LOG_PATH, setting.LOG_FILENAME),
+#                maxBytes=500*1024*1024,
+#                backupCount=3)
+#        formatter = logging.Formatter('%(levelname)-8s %(asctime)s %(module)s:%(lineno)d:%(funcName)s %(message)s')
+#        fh.setFormatter(formatter)
+#
+#    root_logger = logging.getLogger()
+#    root_logger.addHandler(fh)
+#    root_logger.setLevel(setting.LOG_LEVEL)
         
     
 class HomeHandler(tornado.web.RequestHandler):   
@@ -81,7 +85,7 @@ class HomeHandler(tornado.web.RequestHandler):
                  coll.save(article_doc)
         else:
                  #article_doc = {'title':title,'article':article,'commit':commit,'time':time}
-                 article_doc = {'title':title, 'author':author 'time':time}
+                 article_doc = {'title':title, 'author':author, 'time':time}
                  coll.insert(article_doc)
                  #del article_doc["_id"]    
         self.render('home.html',article_doc=article_doc)            
@@ -114,13 +118,13 @@ class CommitHandler(tornado.web.RequestHandler):
                  self.redirect('/commit')
         else:
                  commit_doc = {'text':commit,'time':datatime.datatime.now()}
-                article_doc = {'commit':commit_doc}
+                 article_doc = {'commit':commit}
                  coll.insert(article_doc)
                  coll1.insert(commit_doc)
-                 self.render('commit.html', title=noun1, article=blog1,commit=commit_doc)
+                 self.render('commit.html', title=noun1, article=blog1,commit=commit)
     
 
- class LoginHandler(BaseHandler):
+class LoginHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("login.html")
 
@@ -156,7 +160,7 @@ class CommitHandler(tornado.web.RequestHandler):
         self.session.email = member['email']
         self.redirect(next_url)
 
-class LogoutHandler(BaseHandler):
+class LogoutHandler(tornado.web.RequestHandler):
 
     @tornado.web.authenticated
     def get(self):
@@ -165,7 +169,7 @@ class LogoutHandler(BaseHandler):
         self.redirect("/login")
 
 
-class ResetPasswordHandler(BaseHandler):
+class ResetPasswordHandler(tornado.web.RequestHandler):
 
     @tornado.web.authenticated
     def get(self):
@@ -203,7 +207,7 @@ class ResetPasswordHandler(BaseHandler):
         self.session.clean()
         return self.render('resetpasswd.html',success=True)
 
-class MemberCreateHandler(BaseHandler):
+class MemberCreateHandler(tornado.web.RequestHandler):
 
     template_name = "register.html"
 
