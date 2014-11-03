@@ -41,6 +41,7 @@ class Application(tornado.web.Application):
 
 
 def init_logging(console=0):
+
     if console:
         fh = logging.StreamHandler()
     else:
@@ -55,7 +56,8 @@ def init_logging(console=0):
     root_logger.setLevel(setting.LOG_LEVEL)
         
     
-class HomeHandler(tornado.web.RequestHandler):           
+class HomeHandler(tornado.web.RequestHandler):   
+
     def get(self):
         coll = self.application.db.blog
         article_doc = coll.find()
@@ -86,13 +88,7 @@ class HomeHandler(tornado.web.RequestHandler):
                 
 
 class EditpostHandler(tornado.web.RequestHandler):
-    def get(self):
-        coll = self.application.db.blog
-        article_doc = coll.find_one({"title":"title"})
-        article = self.get_argument('article','')
-        title = self.get_argument('title','')
-        atime = datatime.datatime.now()
-        self.render('editpost.html',title=title,article=article,time=atime)
+
     def post(self):
         coll = self.application.db.blog
         article_doc = coll.find_one({"aid":"_id"})
@@ -122,31 +118,27 @@ class CommitHandler(tornado.web.RequestHandler):
                  coll.insert(article_doc)
                  coll1.insert(commit_doc)
                  self.render('commit.html', title=noun1, article=blog1,commit=commit_doc)
-    #def get(self):
-    #noun1 = self.get_argument('','')
-    #blog1 = self.get_argument('blog1','')
-    #commit = self.get_argument('commit','')
-    # self.render('commit.html', title=noun1, article=blog1, commit=commit)
+    
 
  class LoginHandler(BaseHandler):
     def get(self):
         self.render("login.html")
 
     def post(self):
-        account = self.get_argument('account',default=None)
+        email = self.get_argument('email',default=None)
         password = self.get_argument('password',default=None)
         next_url = self.get_argument('next',default=home_url)
 
-        if not account or not password:
+        if not email or not password:
             self.message='帐号或密码不能为空'
             return self.render("login.html")
         
         try:
-            m = db_user.find_one({'account':account})
+            m = db_user.find_one({'email':email})
             if not m:
                 raise
             wd = self.hash_password(unicode(m['_id']),password)
-            member = db_user.find_one({'account':account,'password':wd})
+            member = db_user.find_one({'email':email,'password':wd})
             if not member:
                 raise
         except:
@@ -161,7 +153,7 @@ class CommitHandler(tornado.web.RequestHandler):
         self.session.mid = member['_id']
         self.session.uid = member['_id']
         self.session.nickname = member['name']
-        self.session.email = member['account']
+        self.session.email = member['email']
         self.redirect(next_url)
 
 class LogoutHandler(BaseHandler):
@@ -255,15 +247,17 @@ class MemberCreateHandler(BaseHandler):
 
         tmp={}
        
-        tmp['account'] = account
+        tmp['email'] = email
         tmp['password'] = password
         tmp['name'] = name
-        tmp['gender'] = gender
-        tmp['number'] = number
+        tmp['sex'] = sex
+        tmp['sno'] = sno
         tmp['phone'] = phone
         tmp['qq'] = QQ
-        tmp['email'] = email
-        tmp['active'] = True
+        tmp['city'] = city
+        tmp['location'] = location
+        tmp['hobby'] = hobby
+        tem['age'] = age
         tmp['atime'] = datetime.datetime.now()
  
         uid = db_user.save(tmp)
