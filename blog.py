@@ -1,7 +1,6 @@
 # -*- coding: UTF-8 -*-
 
 import datetime
-import logging
 import setting
 
 import os.path
@@ -9,6 +8,7 @@ import tornado.httpserver
 import tornado.ioloop
 import tornado.options
 import tornado.web
+import MySQLdb
 
 from pymongo import Connection
 
@@ -25,7 +25,7 @@ class Application(tornado.web.Application):
         (r'/edituser', EdituserHandler),
         (r'/login', LoginHandler),
         (r'/register', RegisterHandler),
-        (r'/resetpassword', ResetpasswordHandler),
+        (r'/resetpassword', ResetPasswordHandler),
         (r'/user', UserHandler),
         (r'/commit', CommitHandler),
         ]
@@ -33,7 +33,7 @@ class Application(tornado.web.Application):
         settings = dict(
             template_path=os.path.join(os.path.dirname(__file__), ""),
             static_path=os.path.join(os.path.dirname(__file__), "static"),
-            debug=seting .DEBUG,        
+            debug=setting .DEBUG,        
      ) 
      
 
@@ -43,22 +43,6 @@ class Application(tornado.web.Application):
         self.commit=conn['commit']
         tornado.web.Application.__init__(self,handlers,**settings)
 
-
-#def init_logging(console=0):
-#
-#    if console:
-#        fh = logging.StreamHandler()
-#    else:
-#        fh = logging.handlers.RotatingFileHandler('%s%s' % (setting.LOG_PATH, setting.LOG_FILENAME),
-#                maxBytes=500*1024*1024,
-#                backupCount=3)
-#        formatter = logging.Formatter('%(levelname)-8s %(asctime)s %(module)s:%(lineno)d:%(funcName)s %(message)s')
-#        fh.setFormatter(formatter)
-#
-#    root_logger = logging.getLogger()
-#    root_logger.addHandler(fh)
-#    root_logger.setLevel(setting.LOG_LEVEL)
-        
     
 class HomeHandler(tornado.web.RequestHandler):   
 
@@ -124,6 +108,30 @@ class CommitHandler(tornado.web.RequestHandler):
                  self.render('commit.html', title=noun1, article=blog1,commit=commit)
     
 
+class EdituserHandler(tornado.web.RequestHandler):
+
+    """docstring for EdituserHandler"""
+    def  post(self):
+        self.render('edituser.html')
+
+        
+class UserHandler(tornado.web.RequestHandler):
+
+    """docstring for UserHandler"""
+    def  post(self):
+        email = self.get_argument('email','')
+        name  = self.get_argument('name','')
+        sno = self.get_argument('sno','')
+        phone = self.get_argument('phone','')
+        location = self.get_argument('location','')
+        age = self.get_argument('age','')
+        sex = self.get_argument('sex','')
+        city = self.get_argument('city','')
+        hobby = self.get_argument('hobby','')
+        self.render('user.html')
+    
+        
+
 class LoginHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("login.html")
@@ -142,22 +150,22 @@ class LoginHandler(tornado.web.RequestHandler):
             if not m:
                 raise
             wd = self.hash_password(unicode(m['_id']),password)
-            member = db_user.find_one({'email':email,'password':wd})
-            if not member:
+            user = db_user.find_one({'email':email,'password':wd})
+            if not user:
                 raise
         except:
             self.message='帐号或密码错误'
             return self.render("login.html")
 
         
-        if not member['active']:
+        if not user['active']:
             self.message='帐号不可用'
             return self.render("login.html")
         
-        self.session.mid = member['_id']
-        self.session.uid = member['_id']
-        self.session.nickname = member['name']
-        self.session.email = member['email']
+        self.session.mid = user['_id']
+        self.session.uid = user['_id']
+        self.session.nickname = user['name']
+        self.session.email = user['email']
         self.redirect(next_url)
 
 class LogoutHandler(tornado.web.RequestHandler):
@@ -207,15 +215,13 @@ class ResetPasswordHandler(tornado.web.RequestHandler):
         self.session.clean()
         return self.render('resetpasswd.html',success=True)
 
-class MemberCreateHandler(tornado.web.RequestHandler):
+class RegisterHandler(tornado.web.RequestHandler):
 
     template_name = "register.html"
 
-    @tornado.web.authenticated
     def get(self):
         self.render(self.template_name)
 
-    @tornado.web.authenticated
     def post(self):
         email = self.get_argument('email',default=None)
         password = self.get_argument('password',default=None)
@@ -247,7 +253,7 @@ class MemberCreateHandler(tornado.web.RequestHandler):
 
                 raise
         except:
-            return self.render(login.html)
+            return self.render(register.html)
 
         tmp={}
        
@@ -271,22 +277,47 @@ class MemberCreateHandler(tornado.web.RequestHandler):
 
         self.redirect(home_url)  
 
-        def main():
+
+class ResetPasswordHandler(tornado.web.RequestHandler):
+
+    def get(self):
+        self.render('resetpasswd.html',success=False)
+
+    def post(self):
+
+        oldpass = self.get_argument('oldpass',default=None)
+        newpass = self.get_argument('newpass',default=None)
+        confirm = self.get_argument('confirm',default=None)
+
+        try:
+            if not oldpass or not newpass or not confirm:
+                self.message = '密码不能为空'
+                raise
+
+            mid = self.session.mid
+            wd = self.hash_password(unicode(mid),oldpass)
+            if not db_user.find_one({'_id':mid,'password':wd}):
+                self.message = '旧的密码不正确'
+                raise
+
+            if newpass != confirm:
+                self.message = '两次新密码不一致'
+                raise
+        except:
+            return self.render('resetpasswd.html',success=False)
+
+        newwd = self.hash_password(unicode(mid),newpass)
+        db_user.update({'_id':mid},{'$set':{'password':newwd}})
+
+        self.session.mid = None
+        self.session.uid = None
+        self.session.clean()
+        return self.render('resetpasswd.html',success=True)
+
+
+if __name__ == '__main__':
             print ('systerm started ...')
             tornado.options.parse_command_line()
             http_server = tornado.httpserver.HTTPServer(Application())
             http_server.listen(options.port)
             tornado.ioloop.IOLoop.instance().start()
-
-             
-
-if __name__ == '__main__':
-    try:
-        console = sys.argv[-1]
-        if console != '1':
-            console =0
-    except:
-        console = 0 
-    init_logging(console)
-    main()
-    
