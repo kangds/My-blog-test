@@ -152,4 +152,3 @@ class Store:
     def decode(self, session_data):
         pickled = base64.decodestring(session_data)
         return pickle.loads(pickled)
-
