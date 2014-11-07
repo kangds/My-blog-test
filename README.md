@@ -29,6 +29,6 @@ ccommit:评论内容
 ctime:评论时间
 
 session对应变量名
-id 用户id
+uid 用户id
 cid 评论id
 aid 文章id

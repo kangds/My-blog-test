@@ -44,13 +44,13 @@ class Application(tornado.web.Application):
             cookie_secret = "__TODO:_GENERATE_YOUR_OWN_RANDOM_VALUE_HERE__",
             login_url = "/login",
             home_url = "/",
-            debug=setting .DEBUG,        
-     ) 
+            debug=setting .DEBUG,
+            ) 
         tornado.web.Application.__init__(self,handlers,**settings)
         self.db = MySQLdb.connect(
             host = 'options.mysql_host', database = 'options.mysql_database',
-            user = 'options.mysql_user', password = 'options.mysql_password' ) 
-
+            user = 'options.mysql_user', password = 'options.mysql_password'
+             ) 
 
 class BaseHandler(tornado.web.RequestHandler):
     @property
@@ -58,9 +58,11 @@ class BaseHandler(tornado.web.RequestHandler):
         return self.application.db
 
     def get_current_user(self):
-        user_id = self.get_secure_cookie("blogdemo_user")
-        if not user_id: return None
-        return self.db.get("SELECT * FROM authors WHERE id = %s", int(user_id))
+        #user_id = self.get_secure_cookie("blogdemo_user")
+        "UPDATE user SET uid=self.get_secure_cookie("blogdemo_user") "
+        sq l= "SELECT uid FROM user "
+        if not "SELECT uid FROM user ": return None
+        return self.db.get("SELECT * FROM user WHERE id = %s", int(user_uid))
 
     
 class HomeHandler(BaseHandler):   
@@ -71,19 +73,19 @@ class HomeHandler(BaseHandler):
         self.render('home.html', entries=entries)
 
     def post(self):
-        id = self.get_argument('_id','')
+        aid = self.get_argument('_id','')
         title = self.get_argument('title','')
         time = datatime.datatime.now()
         author = session.user.name
-        if id:
-                 entry = self.db.get("SELECT * FROM entries WHERE id = %s",int(id))
+        if aid:
+                 entry = self.db.get("SELECT * FROM entries WHERE aid = %s",int(id))
                  if not entry: raise tornado.web.HTTPError(404)
                  self.db.execute(
                     "UPDATE entries SET title = %s, author = %s, time = %s "
                     "WHERE id = %s", title, time, author, int(id))
                 
         else:
-              id = self.get_argument('_id','')
+              aid = self.get_argument('_id','')
               title = self.get_argument('title','')
               time = datatime.datatime.now()
               author = session.user.name
@@ -126,7 +128,7 @@ class CommitHandler(tornado.web.RequestHandler):
      #       self.render("commit.html")
 
     def post(self):
-        id = self.get_argument('_id','')
+        aid = self.get_argument('_id','')
         commit = self.get_argument('commit','')
         title = self.get_argument('title','')
         time = self.get_argument('time','')
@@ -135,7 +137,7 @@ class CommitHandler(tornado.web.RequestHandler):
         ctime = datatime.datatime.now()
         cauthor = session.user.name
         cursor = db.cursor()
-        if id:
+        if aid:
             sql = """ INSERT INTO article(commit)
             VALUES ('commit')"""
             sql = """ INSERT INTO commit(ccommit, ctime, cauthor)
@@ -238,9 +240,9 @@ class ResetpasswordHandler(tornado.web.RequestHandler):
                 self.message = '密码不能为空'
                 raise
 
-            id = self.session.aid
+            uid = self.session.uid
             wd = self.hash_password(unicode(uid),oldpass)
-            sql ="SELECT email from user WHERE email=="wd" and uid=="_id" "
+            sql ="SELECT email from user WHERE oldpass=="wd" and uid=="_id" "
             if not sql:
                 self.message = '旧的密码不正确'
                 raise
