@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+#encoding=utf-8
 
 import datetime
 import setting
@@ -47,28 +48,32 @@ class Application(tornado.web.Application):
             debug=setting .DEBUG,
             ) 
         tornado.web.Application.__init__(self,handlers,**settings)
+
         self.db = MySQLdb.connect(
-            host = 'options.mysql_host', database = 'options.mysql_database',
-            user = 'options.mysql_user', password = 'options.mysql_password'
+            host = 'options.mysql_host', databases = 'options.mysql_database',
+            user = 'options.mysql_user',password = 'kds1026',
+            #password = 'options.mysql_password',
+            charset="utf8",init_command="set names utf8"
              ) 
+        cursor = db.cursor()
 
-class BaseHandler(tornado.web.RequestHandler):
-    @property
-    def db(self):
-        return self.application.db
-
-    def get_current_user(self):
-        #user_id = self.get_secure_cookie("blogdemo_user")
-        "UPDATE user SET uid=self.get_secure_cookie("blogdemo_user") "
-        sq l= "SELECT uid FROM user "
-        if not "SELECT uid FROM user ": return None
-        return self.db.get("SELECT * FROM user WHERE id = %s", int(user_uid))
+#class BaseHandler(tornado.web.RequestHandler):
+#    @property
+#    def db(self):
+#        return self.application.db
+#
+#    def get_current_user(self):
+#        #user_id = self.get_secure_cookie("blogdemo_user")
+#        "UPDATE user SET uid=self.get_secure_cookie("blogdemo_user") "
+#        sql= "SELECT uid FROM user "
+#        if not sql: return None
+#        return self.db.get("SELECT * FROM user WHERE id = %s", int(user_uid))
 
     
-class HomeHandler(BaseHandler):   
+class HomeHandler(tornado.web.RequestHandler):   
 
     def get(self):
-        entrise = self.db.query("SELECT * FROM entries ORDER BY published "
+        entrise = self.db.query("SELECT * FROM article ORDER BY published "
                                 "DESC LIMIT 5")
         self.render('home.html', entries=entries)
 
@@ -78,7 +83,7 @@ class HomeHandler(BaseHandler):
         time = datatime.datatime.now()
         author = session.user.name
         if aid:
-                 entry = self.db.get("SELECT * FROM entries WHERE aid = %s",int(id))
+                 entry = self.db.get("SELECT * FROM article WHERE aid = %s",int(id))
                  if not entry: raise tornado.web.HTTPError(404)
                  self.db.execute(
                     "UPDATE entries SET title = %s, author = %s, time = %s "
@@ -98,7 +103,7 @@ class EditpostHandler(tornado.web.RequestHandler):
         self.render('editpost.html')
 
 
-class DeleteHandler(BaseHandler):
+class DeleteHandler(tornado.web.RequestHandler):
     def get(self):
         key = self.get_argument("key")
         try:
@@ -126,8 +131,7 @@ class CommitHandler(tornado.web.RequestHandler):
      #   if id:
      #       entry = self.db.get("SELECT * FROM entries WHERE id = %s",int(id))
      #       self.render("commit.html")
-
-    def post(self):
+     def post(self):
         aid = self.get_argument('_id','')
         commit = self.get_argument('commit','')
         title = self.get_argument('title','')
@@ -138,8 +142,10 @@ class CommitHandler(tornado.web.RequestHandler):
         cauthor = session.user.name
         cursor = db.cursor()
         if aid:
-            sql = """ INSERT INTO article(commit)
+            sql = """INSERT INTO article(commit)
             VALUES ('commit')"""
+            cursor.execute(sql)
+
             sql = """ INSERT INTO commit(ccommit, ctime, cauthor)
             VALUES ('commit', 'ctime', 'cauthor')"""
             try:
@@ -242,7 +248,7 @@ class ResetpasswordHandler(tornado.web.RequestHandler):
 
             uid = self.session.uid
             wd = self.hash_password(unicode(uid),oldpass)
-            sql ="SELECT email from user WHERE oldpass=="wd" and uid=="_id" "
+            sql ="SELECT email FROM user WHERE oldpass=='wd' and uid=='_id' "
             if not sql:
                 self.message = '旧的密码不正确'
                 raise
@@ -254,7 +260,9 @@ class ResetpasswordHandler(tornado.web.RequestHandler):
             return self.render('resetpasswd.html',success=False)
 
         newwd = self.hash_password(unicode(uid),newpass)
-        "UPDATE user SET uid='_id', newwd='password'"
+        sql = "UPDATE user SET uid='_id', newwd='password'"
+        cursor.execute(sql)
+
         #db_user.update({'_id':uid},{'$set':{'password':newwd}})
 
         self.session.uid = None
@@ -315,10 +323,12 @@ class RegisterHandler(tornado.web.RequestHandler):
         tmp['atime'] = datetime.datetime.now()
  
         #uid = db_user.save(tmp)
-        " INSERT INTO user ("uid","tem")"
+        sql = " INSERT INTO user ('uid','tem')"
+        cursor.execute(sql)
         
         wd = self.hash_password(unicode(uid),password)
-        "UPDATE user SET uid='_id',wd='password'"
+        sql = "UPDATE user SET uid='_id',wd='password'"
+        cursor.execute(sql)
 
         self.redirect(home_url)  
 
@@ -343,7 +353,7 @@ class ResetPasswordHandler(tornado.web.RequestHandler):
             wd = self.hash_password(unicode(uid),oldpass)
             "sql = SELECT uid and wd FROM user WHERE uid=='_id' and wd=='password' "
             #if not db_user.find_one({'_id':uid,'password':wd}):
-            if not sql 
+            if not sql: 
                 self.message = '旧的密码不正确'
                 raise
 
@@ -355,7 +365,8 @@ class ResetPasswordHandler(tornado.web.RequestHandler):
 
         newwd = self.hash_password(unicode(uid),newpass)
         #db_user.update({'_id':uid},{'$set':{'password':newwd}})
-        " UPDATE user SET uid='_id',newwd='password')"
+        sql = " UPDATE user SET uid='_id',newwd='password')"
+        cursor.execute(sql)
 
         self.session.uid = None
         self.session.uid = None
@@ -368,4 +379,5 @@ if __name__ == '__main__':
             tornado.options.parse_command_line()
             http_server = tornado.httpserver.HTTPServer(Application())
             http_server.listen(options.port)
+            #tornado.httpserver.HTTPServer(Application()).listen(options.port)
             tornado.ioloop.IOLoop.instance().start()
