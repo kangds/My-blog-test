@@ -248,7 +248,11 @@ class ResetpasswordHandler(tornado.web.RequestHandler):
 
             uid = self.session.uid
             wd = self.hash_password(unicode(uid),oldpass)
+<<<<<<< HEAD
             sql ="SELECT email FROM user WHERE oldpass=='wd' and uid=='_id' "
+=======
+            sql ="SELECT email FROM user WHERE email=="wd" and uid=="_id" "
+>>>>>>> a2cbe2ddd80f7e2dab315de1e73bad91bb01e8c4
             if not sql:
                 self.message = '旧的密码不正确'
                 raise
