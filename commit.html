@@ -38,13 +38,19 @@
 			</p>
 			<ul class="nav nav-tabs">
 				<li class="active">
-					<a href="#">首页</a>
+					<a href="/">首页</a>
 				</li>
 				<li>
-					<a href="#">用户信息</a>
+					<a href="/user">用户信息</a>
 				</li>
 				<li class="disabled">
-					<a href="#">发表文章</a>
+					<a href="/editpost">发表文章</a>
+				</li>
+				<li>
+					<a href="/logout">退出登录</a>
+				</li>
+				<li>
+					<a href="/resetpassword">重置密码</a>
 				</li>
 				<li class="dropdown pull-right">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="#">下拉</a>
@@ -71,21 +77,26 @@
 				<p><strong>作者: </strong>{{author}}                   <strong>时间:</strong> {{time}}</p>
 				<h3>正文</h3>
 				{{article}}
-			</p> 
+			</p>
+			<a href="{{ path  }}?act=delete&id={{ str(i['_id']) }}" onclick="return confirm('确认?') " class="edit-btn" >删除</a>
 			<strong>评论:</strong>
 			<br>
 			<p>评论：<textarea cols="30" name="commit" required="required" rows="5" type="txt" value="--请输入你的评论吧--"></textarea></p>
 
-                     <p>已有的评论：
-                      <p>作者：{{author}}                 时间: {{time}} </p>
-                      commit内容
-                      <hr>
-                      </p> 
-			<br> 
 			<form method="post" action="/commit">
 			<button class="btn btn-primary" type="reset" value="Reset">重置</button>
 			<button class="btn btn-primary" type="submit" value="发表" >发表</button>
 			</form>
+
+                     <p>已有的评论：
+                     <!-- 对应循环显示评论 -->
+                     {% for cid in ccommit%}
+                      <p>作者：{{cauthor}}                 时间: {{ctime}} </p>
+                      {{ccommit}}
+                      {% end %}
+                      <hr>
+                      </p> 
+			<br> 
 		</div>
 	</div>
 </div>

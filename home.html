@@ -29,7 +29,7 @@
 			</h1>
 			<div>
 				<h3 class="text-right">
-					<u>华中农业大学理学院信息与计算科学2011级1班班级博客共享平台</u>
+					<u>华中农业大学理学院信息与计算科学2011级1班班级博客交流平台</u>
 				</h3>
 			</div>
 			<ul class="nav nav-tabs">
@@ -37,10 +37,16 @@
 					<a href="/">首页</a>
 				</li>
 				<li>
-					<a href="#">用户信息</a>
+					<a href="/user">用户信息</a>
 				</li>
-				<li class="disabled">
-					<a href="/edit">发表文章</a>
+				<li>
+					<a href="/editpost">发表文章</a>
+				</li>
+				<li>
+					<a href="/logout">退出登录</a>
+				</li>
+				<li>
+					<a href="/resetpassword">重置密码</a>
 				</li>
 				<li class="dropdown pull-right">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="#">下拉</a>
@@ -77,7 +83,7 @@
 						</p>
 						<br>
 						<p>
-							距离我们毕业的日子越来越近了，希望我们能在毕业之后继续保持着这种交流，我们只有多沟通才能了解家人们的生活状态．真心的希望我们的没一个家人都能够幸福快乐
+							距离我们毕业的日子越来越近了，希望我们能在毕业之后继续保持着这种交流，我们只有多沟通才能了解家人们的生活状态．真心的希望我们的每一个家人都能够幸福快乐
 						</p>
 					</div>
 				</div>
@@ -272,9 +278,9 @@
 			</div>
 			<label>大家的博客</label>
 				<div class="span6">
-				{% for aid in article%}
-				<h2>title:{{article['title']}}</h2>
-				<p>作者: {{author}}                     时间：{{time}} </p>
+				{% for aid in articles%}
+				<h2>title:{{articles['title']}}</h2>
+				<p>作者: {{articles.author}}                     时间：{{articles.time}} </p>
 				<!--
 				<p><h2>article:</h2>{{article['article']}}</p>
 				<p><h2>commit:</h2>{{article['commit']}}</p>
