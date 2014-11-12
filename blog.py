@@ -30,6 +30,7 @@ class Application(tornado.web.Application):
         (r'/editpost', EditpostHandler),
         (r'/edituser', EdituserHandler),
         (r'/login', LoginHandler),
+        (r'logout',LogoutHandler),
         (r'/register', RegisterHandler),
         (r'/resetpassword', ResetpasswordHandler),
         (r'/user', UserHandler),
@@ -50,8 +51,9 @@ class Application(tornado.web.Application):
         tornado.web.Application.__init__(self,handlers,**settings)
 
         self.db = MySQLdb.connect(
-            host = 'options.mysql_host', databases = 'options.mysql_database',
-            user = 'options.mysql_user',password = 'kds1026',
+            host = 'options.mysql_host', 
+            #databases = 'options.mysql_database',
+            user = 'options.mysql_user',
             #password = 'options.mysql_password',
             charset="utf8",init_command="set names utf8"
              ) 
@@ -73,9 +75,9 @@ class Application(tornado.web.Application):
 class HomeHandler(tornado.web.RequestHandler):   
 
     def get(self):
-        entrise = self.db.query("SELECT * FROM article ORDER BY published "
+        articles = self.db.query("SELECT * FROM article ORDER BY published "
                                 "DESC LIMIT 5")
-        self.render('home.html', entries=entries)
+        self.render('home.html', articles=articles)
 
     def post(self):
         aid = self.get_argument('_id','')
@@ -83,10 +85,10 @@ class HomeHandler(tornado.web.RequestHandler):
         time = datatime.datatime.now()
         author = session.user.name
         if aid:
-                 entry = self.db.get("SELECT * FROM article WHERE aid = %s",int(id))
+                 article = self.db.get("SELECT * FROM article WHERE aid = %s",int(id))
                  if not entry: raise tornado.web.HTTPError(404)
                  self.db.execute(
-                    "UPDATE entries SET title = %s, author = %s, time = %s "
+                    "UPDATE article SET title = %s, author = %s, time = %s "
                     "WHERE id = %s", title, time, author, int(id))
                 
         else:
@@ -95,7 +97,7 @@ class HomeHandler(tornado.web.RequestHandler):
               time = datatime.datatime.now()
               author = session.user.name
 
-              self.render('home.html',)            
+              self.render('home.html')            
                 
 
 class EditpostHandler(tornado.web.RequestHandler):
@@ -107,18 +109,18 @@ class DeleteHandler(tornado.web.RequestHandler):
     def get(self):
         key = self.get_argument("key")
         try:
-            entry = Entry.get(key)
+            article = Article.get(key)
         except db.BadKeyError:
             raise tornado.web.HTTPError(404)
-        self.render("delete.html", entry=entry)
+        self.render("delete.html", article=article)
 
     def post(self):
         key = self.get_argument("key")
         try:
-            entry = Entry.get(key)
+            article = Article.get(key)
         except db.BadKeyError:
             raise tornado.web.HTTPError(404)
-        entry.delete()
+        article.delete()
         self.redirect("/")
 
 
@@ -136,11 +138,11 @@ class CommitHandler(tornado.web.RequestHandler):
         commit = self.get_argument('commit','')
         title = self.get_argument('title','')
         time = self.get_argument('time','')
-        author = self.get_argument('author','')
+        author = session.user.name
+        cid = self.get_argument('_id','')
         ccommit = self.get_argument('ccommit','')
         ctime = datatime.datatime.now()
         cauthor = session.user.name
-        cursor = db.cursor()
         if aid:
             sql = """INSERT INTO article(commit)
             VALUES ('commit')"""
@@ -155,16 +157,17 @@ class CommitHandler(tornado.web.RequestHandler):
                 db.rollback()
         else:
                  raise tornado.web.HTTPError(404)
+        self.render("commit.html")
     
 
 class EdituserHandler(tornado.web.RequestHandler):
 
     """docstring for EdituserHandler"""
     def  post(self):
-        email = self.session.useremail
-        name = self.session.username
-        sno = self.session.usersno
-        sex = self.session.usersex
+        email = self.session.user.email
+        name = self.session.user.name
+        sno = self.session.user.sno
+        gender = self.session.user.gender
         self.render('edituser.html')
 
         
@@ -178,13 +181,12 @@ class UserHandler(tornado.web.RequestHandler):
         phone = self.get_argument('phone','')
         location = self.get_argument('location','')
         age = self.get_argument('age','')
-        sex = self.get_argument('sex','')
+        gender = self.get_argument('gender','')
         city = self.get_argument('city','')
         hobby = self.get_argument('hobby','')
         self.render('user.html')
     
         
-
 class LoginHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("login.html")
@@ -216,14 +218,14 @@ class LoginHandler(tornado.web.RequestHandler):
             return self.render("login.html")
         
         self.session.uid = user['email']
-        self.session.username = user['name']
+        self.session.user.name = user['name']
         self.redirect(next_url)
+
 
 class LogoutHandler(tornado.web.RequestHandler):
 
     @tornado.web.authenticated
     def get(self):
-
         self.session.clean()
         self.redirect("/login")
 
@@ -285,7 +287,7 @@ class RegisterHandler(tornado.web.RequestHandler):
         sno = self.get_argument('sno','')
         location = self.get_argument('location','')
         city = self.get_argument('city','')
-        sex = self.get_argument('sex',default=None)
+        gender = self.get_argument('gender',default=None)
         phone = self.get_argument('phone',default=None)
         QQ = self.get_argument('qq',default=None)
         hobby = self.get_argument('hobby','')
@@ -300,7 +302,7 @@ class RegisterHandler(tornado.web.RequestHandler):
                 self.message = '帐号已经存在'
                 raise
 
-            if not sex or not name:
+            if not gender or not name:
                 self.message = '性别或姓名不能为空'
                 raise
 
@@ -308,20 +310,19 @@ class RegisterHandler(tornado.web.RequestHandler):
         except:
             return self.render(register.html)
 
-        tmp={}
+        tem = {}
        
-        tmp['email'] = email
-        tmp['password'] = password
-        tmp['name'] = name
-        tmp['sex'] = sex
-        tmp['sno'] = sno
-        tmp['phone'] = phone
-        tmp['qq'] = QQ
-        tmp['city'] = city
-        tmp['location'] = location
-        tmp['hobby'] = hobby
+        tem['email'] = email
+        tem['password'] = password
+        tem['name'] = name
+        tem['gender'] = gender
+        tem['sno'] = sno
+        tem['phone'] = phone
+        tem['qq'] = QQ
+        tem['city'] = city
+        tem['location'] = location
+        tem['hobby'] = hobby
         tem['age'] = age
-        tmp['atime'] = datetime.datetime.now()
  
         #uid = db_user.save(tmp)
         sql = " INSERT INTO user ('uid','tem')"
@@ -352,7 +353,7 @@ class ResetPasswordHandler(tornado.web.RequestHandler):
 
             uid = self.session.uid
             wd = self.hash_password(unicode(uid),oldpass)
-            "sql = SELECT uid and wd FROM user WHERE uid=='_id' and wd=='password' "
+            sql = "SELECT uid and wd FROM user WHERE uid=='_id' and wd=='password' "
             #if not db_user.find_one({'_id':uid,'password':wd}):
             if not sql: 
                 self.message = '旧的密码不正确'
@@ -369,7 +370,6 @@ class ResetPasswordHandler(tornado.web.RequestHandler):
         sql = " UPDATE user SET uid='_id',newwd='password')"
         cursor.execute(sql)
 
-        self.session.uid = None
         self.session.uid = None
         self.session.clean()
         return self.render('resetpasswd.html',success=True)
