@@ -10,16 +10,18 @@ import tornado.ioloop
 import tornado.options
 import tornado.web
 import MySQLdb
+import MySQLdb.cursors
+
 
 from pymongo import Connection
 
 from tornado.options import define, options
 
 define("port", default=8000, help="run on the given port", type=int)
-define("mysql_host", default="127.0.0.1:3306", help="blog database host")
+define("mysql_host", default="localhost", help="blog database host")
 define("mysql_database", default="blog", help="blog database name")
-define("mysql_user", default="blog", help="blog database user")
-define("mysql_password", default="blog", help="blog database password")
+define("mysql_user", default="root", help="blog database user")
+define("mysql_password", default="newpass", help="blog database password")
 
 
 class Application(tornado.web.Application):
@@ -51,11 +53,12 @@ class Application(tornado.web.Application):
         tornado.web.Application.__init__(self,handlers,**settings)
 
         self.db = MySQLdb.connect(
-            host = 'options.mysql_host', 
-            #databases = 'options.mysql_database',
-            user = 'options.mysql_user',
-            #password = 'options.mysql_password',
-            charset="utf8",init_command="set names utf8"
+            host = 'localhost', 
+            db = 'mysql_database',
+            user = 'root',
+            passwd = 'newpass',
+            charset="utf8",
+            init_command="set names utf8"
              ) 
         cursor = db.cursor()
 
@@ -75,7 +78,7 @@ class Application(tornado.web.Application):
 class HomeHandler(tornado.web.RequestHandler):   
 
     def get(self):
-        articles = self.db.query("SELECT * FROM article ORDER BY published "
+        articles = self.db.query("SELECT * FROM article ORDER BY aid "
                                 "DESC LIMIT 5")
         self.render('home.html', articles=articles)
 
@@ -86,10 +89,11 @@ class HomeHandler(tornado.web.RequestHandler):
         author = session.user.name
         if aid:
                  article = self.db.get("SELECT * FROM article WHERE aid = %s",int(id))
-                 if not entry: raise tornado.web.HTTPError(404)
+                 if not article: raise tornado.web.HTTPError(404)
                  self.db.execute(
                     "UPDATE article SET title = %s, author = %s, time = %s "
                     "WHERE id = %s", title, time, author, int(id))
+                 db.commit()
                 
         else:
               aid = self.get_argument('_id','')
@@ -265,6 +269,7 @@ class ResetpasswordHandler(tornado.web.RequestHandler):
         newwd = self.hash_password(unicode(uid),newpass)
         sql = "UPDATE user SET uid='_id', newwd='password'"
         cursor.execute(sql)
+        db.commit()
 
         #db_user.update({'_id':uid},{'$set':{'password':newwd}})
 
@@ -327,10 +332,12 @@ class RegisterHandler(tornado.web.RequestHandler):
         #uid = db_user.save(tmp)
         sql = " INSERT INTO user ('uid','tem')"
         cursor.execute(sql)
+        db.commit()
         
         wd = self.hash_password(unicode(uid),password)
         sql = "UPDATE user SET uid='_id',wd='password'"
         cursor.execute(sql)
+        db.commit()
 
         self.redirect(home_url)  
 
@@ -369,6 +376,7 @@ class ResetPasswordHandler(tornado.web.RequestHandler):
         #db_user.update({'_id':uid},{'$set':{'password':newwd}})
         sql = " UPDATE user SET uid='_id',newwd='password')"
         cursor.execute(sql)
+        db.commit()
 
         self.session.uid = None
         self.session.clean()
