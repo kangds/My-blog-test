@@ -9,20 +9,15 @@ import tornado.httpserver
 import tornado.ioloop
 import tornado.options
 import tornado.web
-import MySQLdb
-import MySQLdb.cursors
+import pymongo
 
 
 from pymongo import Connection
 
 from tornado.options import define, options
-
 define("port", default=8000, help="run on the given port", type=int)
-define("mysql_host", default="localhost", help="blog database host")
-define("mysql_database", default="blog", help="blog database name")
-define("mysql_user", default="root", help="blog database user")
-define("mysql_password", default="newpass", help="blog database password")
 
+conn = pymongo.Connection("localhost",27017)
 
 class Application(tornado.web.Application):
 
@@ -52,30 +47,10 @@ class Application(tornado.web.Application):
             ) 
         tornado.web.Application.__init__(self,handlers,**settings)
 
-        self.db = MySQLdb.connect(
-            host = 'localhost', 
-            db = 'mysql_database',
-            user = 'root',
-            passwd = 'newpass',
-            charset="utf8",
-            init_command="set names utf8"
-             ) 
+        self.db = 
         cursor = db.cursor()
 
-#class BaseHandler(tornado.web.RequestHandler):
-#    @property
-#    def db(self):
-#        return self.application.db
-#
-#    def get_current_user(self):
-#        #user_id = self.get_secure_cookie("blogdemo_user")
-#        "UPDATE user SET uid=self.get_secure_cookie("blogdemo_user") "
-#        sql= "SELECT uid FROM user "
-#        if not sql: return None
-#        return self.db.get("SELECT * FROM user WHERE id = %s", int(user_uid))
-
-    
-class HomeHandler(tornado.web.RequestHandler):   
+    class HomeHandler(tornado.web.RequestHandler):   
 
     def get(self):
         articles = self.db.query("SELECT * FROM article ORDER BY aid "
@@ -94,7 +69,6 @@ class HomeHandler(tornado.web.RequestHandler):
                     "UPDATE article SET title = %s, author = %s, time = %s "
                     "WHERE id = %s", title, time, author, int(id))
                  db.commit()
-                
         else:
               aid = self.get_argument('_id','')
               title = self.get_argument('title','')
@@ -329,7 +303,7 @@ class RegisterHandler(tornado.web.RequestHandler):
         tem['hobby'] = hobby
         tem['age'] = age
  
-        #uid = db_user.save(tmp)
+        #uid = db_user华中农业大学理学院信息与计算科学2011级1班班级博客共享平台.save(tmp)
         sql = " INSERT INTO user ('uid','tem')"
         cursor.execute(sql)
         db.commit()

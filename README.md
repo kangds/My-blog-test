@@ -8,6 +8,7 @@ My-blog-test
 user:
  email:  注册邮箱，登录ID（注册后不可更改）
  name:姓名
+posts:
  location:出生地（注册后不可更改）
  city:目前所在城市
  hobby:爱好
@@ -20,10 +21,11 @@ user:
  title:(题目)
  time：写作时间
  authoe:博主
- article:（正文）
+ content:（正文）
  commit:评论（对应应该是嵌套表）
 
 commit:
+ci
 cauthor:评论作者
 ccommit:评论内容
 ctime:评论时间
