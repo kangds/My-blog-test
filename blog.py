@@ -9,15 +9,10 @@ import tornado.httpserver
 import tornado.ioloop
 import tornado.options
 import tornado.web
-import pymongo
-
-
-from pymongo import Connection
 
 from tornado.options import define, options
 define("port", default=8000, help="run on the given port", type=int)
 
-conn = pymongo.Connection("localhost",27017)
 
 class Application(tornado.web.Application):
 
@@ -27,58 +22,46 @@ class Application(tornado.web.Application):
         (r'/editpost', EditpostHandler),
         (r'/edituser', EdituserHandler),
         (r'/login', LoginHandler),
-        (r'logout',LogoutHandler),
+        (r'/logout',LogoutHandler),
         (r'/register', RegisterHandler),
         (r'/resetpassword', ResetpasswordHandler),
         (r'/user', UserHandler),
+        (r'/photo', PhotoHandler),
         (r'/commit', CommitHandler),
         ]
 
         settings = dict(
             blog_title = "Our blog",
             template_path=os.path.join(os.path.dirname(__file__), ""),
-            static_path=os.path.join(os.path.dirname(__file__), "static"),
+            static_path = os.path.join(os.path.dirname(__file__), "static"),
+            #static_path = os.path.join(os.path.dirname(__file__), "images"),
             #ui_modules = {"Entry": EntryModule},
             xsrf_cookies = True,
             cookie_secret = "__TODO:_GENERATE_YOUR_OWN_RANDOM_VALUE_HERE__",
             login_url = "/login",
-            home_url = "/",
+            home_url =  "/",
             debug=setting .DEBUG,
             ) 
         tornado.web.Application.__init__(self,handlers,**settings)
 
-        self.db = 
-        cursor = db.cursor()
 
-    class HomeHandler(tornado.web.RequestHandler):   
-
+class HomeHandler(tornado.web.RequestHandler):   
     def get(self):
-        articles = self.db.query("SELECT * FROM article ORDER BY aid "
-                                "DESC LIMIT 5")
-        self.render('home.html', articles=articles)
+        self.render('home.html')
 
     def post(self):
-        aid = self.get_argument('_id','')
-        title = self.get_argument('title','')
-        time = datatime.datatime.now()
-        author = session.user.name
-        if aid:
-                 article = self.db.get("SELECT * FROM article WHERE aid = %s",int(id))
-                 if not article: raise tornado.web.HTTPError(404)
-                 self.db.execute(
-                    "UPDATE article SET title = %s, author = %s, time = %s "
-                    "WHERE id = %s", title, time, author, int(id))
-                 db.commit()
-        else:
-              aid = self.get_argument('_id','')
-              title = self.get_argument('title','')
-              time = datatime.datatime.now()
-              author = session.user.name
-
-              self.render('home.html')            
+        self.render('home.html')            
                 
+class PhotoHandler(tornado.web.RequestHandler):   
+    def get(self):
+        self.render('photo.html')
+
+    def post(self):
+        self.render('photo.html')            
 
 class EditpostHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.render('editpost.html')
     def post(self):
         self.render('editpost.html')
 
@@ -147,12 +130,18 @@ class EdituserHandler(tornado.web.RequestHandler):
         sno = self.session.user.sno
         gender = self.session.user.gender
         self.render('edituser.html')
+    def  get(self):
+        email = self.session.user.email
+        name = self.session.user.name
+        sno = self.session.user.sno
+        gender = self.session.user.gender
+        self.render('edituser.html')
 
         
 class UserHandler(tornado.web.RequestHandler):
 
     """docstring for UserHandler"""
-    def  post(self):
+    def  get(self):
         email = self.get_argument('email','')
         name  = self.get_argument('name','')
         sno = self.get_argument('sno','')
@@ -201,7 +190,6 @@ class LoginHandler(tornado.web.RequestHandler):
 
 
 class LogoutHandler(tornado.web.RequestHandler):
-
     @tornado.web.authenticated
     def get(self):
         self.session.clean()

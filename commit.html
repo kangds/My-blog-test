@@ -1,104 +1,90 @@
 <!DOCTYPE html>
 <head>
-<title>评论</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="http://cdn.bootcss.com/twitter-bootstrap/2.3.2/css/bootstrap.min.css">
-
-  </head>
-  <body>
-
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="http://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="http://cdn.bootcss.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-  </body>
-
-   <head>
-   
-   <link rel="stylesheet" type="text/css" href="dist/css/bootstrap.min.css">
-    <script src="dist/jquery-1.11.1.js"></script>
-    <script src="dist/js/bootstrap.min.js"></script>
-    </head>
-
+<title>our blog</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" media="screen" type="text/css" href="/static/dist/css/bootstrap.min.css">
+<script type="text/javascript" src="/static/dist/jquery.min.js"></script>
+<script type="text/javascript" src="/static/dist/js/bootstrap.min.js"></script>
+</head>
 
 <div class="container-fluid">
-	<div class="row-fluid">
-		<div class="span12">
-			<h1 class="muted">
-				<a href="www.hzau.edu.cn"><img alt="华中农业大学logo" src="http://localhost:8000/static/img/hzau.png" width="250" height="400" /></a><strong>Our blog</strong>
-			</h1>
-			<div>
-				<h3 class="text-right">
-					华中农业大学理学院信息与计算科学2011级1班班级博客共享平台
-				</h3>
-			</div>
-			<p>
-				伙伴现在可以对这篇文章文章"评头论足"咯
-			</p>
-			<ul class="nav nav-tabs">
-				<li class="active">
-					<a href="/">首页</a>
-				</li>
-				<li>
-					<a href="/user">用户信息</a>
-				</li>
-				<li class="disabled">
-					<a href="/editpost">发表文章</a>
-				</li>
-				<li>
-					<a href="/logout">退出登录</a>
-				</li>
-				<li>
-					<a href="/resetpassword">重置密码</a>
-				</li>
-				<li class="dropdown pull-right">
-					<a class="dropdown-toggle" data-toggle="dropdown" href="#">下拉</a>
-					<ul class="dropdown-menu">
-						<li>
-							<a href="#">操作</a>
-						</li>
-						<li>
-							<a href="#">设置栏目</a>
-						</li>
-						<li>
-							<a href="#">更多设置</a>
-						</li>
-						<li class="divider">
-						</li>
-						<li>
-							<a href="#">分割线</a>
-						</li>
-					</ul>
-				</li>
-			</ul>
-			<p>
-				<h3>题目：{{title}}</h3>
-				<p><strong>作者: </strong>{{author}}                   <strong>时间:</strong> {{time}}</p>
-				<h3>正文</h3>
-				{{article}}
-			</p>
-			<a href="{{ path  }}?act=delete&id={{ str(i['_id']) }}" onclick="return confirm('确认?') " class="edit-btn" >删除</a>
-			<strong>评论:</strong>
-			<br>
-			<p>评论：<textarea cols="30" name="commit" required="required" rows="5" type="txt" value="--请输入你的评论吧--"></textarea></p>
-
-			<form method="post" action="/commit">
-			<button class="btn btn-primary" type="reset" value="Reset">重置</button>
-			<button class="btn btn-primary" type="submit" value="发表" >发表</button>
-			</form>
-
-                     <p>已有的评论：
-                     <!-- 对应循环显示评论 -->
-                     {% for cid in ccommit%}
-                      <p>作者：{{cauthor}}                 时间: {{ctime}} </p>
-                      {{ccommit}}
-                      {% end %}
-                      <hr>
-                      </p> 
-			<br> 
+<div class="row-fluid">
+	<div class="span12">
+		<h1 class="muted">
+			<a href="http://www.hzau.edu.cn"><img alt="华中农业大学logo" src="http://localhost:8000/static/img/hzau.png"/></a><strong>Our blog</strong>
+		</h1>
+		<div>
+			<h3 class="text-right">
+				华中农业大学理学院信息与计算科学2011级1班班级博客共享平台
+			</h3>
 		</div>
+		<p>
+			伙伴现在可以对这篇文章文章"评头论足"咯
+		</p>
+		<ul class="nav nav-tabs">
+			<li class="active">
+				<a href="/">首页</a>
+			</li>
+			<li>
+				<a href="/user">用户信息</a>
+			</li>
+			<li class="disabled">
+				<a href="/editpost">发表文章</a>
+			</li>
+			<li>
+				<a href="/logout">退出登录</a>
+			</li>
+			<li>
+				<a href="/resetpassword">重置密码</a>
+			</li>
+			<li class="dropdown pull-right">
+				<a class="dropdown-toggle" data-toggle="dropdown" href="#">下拉</a>
+				<ul class="dropdown-menu">
+					<li>
+						<a href="#">操作</a>
+					</li>
+					<li>
+						<a href="#">设置栏目</a>
+					</li>
+					<li>
+						<a href="#">更多设置</a>
+					</li>
+					<li class="divider">
+					</li>
+					<li>
+						<a href="#">分割线</a>
+					</li>
+				</ul>
+			</li>
+		</ul>
+		<p>
+			<h3>题目：{{title}}</h3>
+			<p><strong>作者: </strong>{{author}}                   <strong>时间:</strong> {{time}}</p>
+			<h3>正文</h3>
+			{{article}}
+		</p>
+		<a href="{{ path  }}?act=delete&id={{ str(i['_id']) }}" onclick="return confirm('确认?') " class="edit-btn" >删除</a>
+		<strong>评论:</strong>
+		<br>
+		<p>评论：<textarea cols="30" name="commit" required="required" rows="5" type="txt" value="--请输入你的评论吧--"></textarea></p>
+
+		<form method="post" action="/commit">
+		<button class="btn btn-primary" type="reset" value="Reset">重置</button>
+		<button class="btn btn-primary" type="submit" value="发表" >发表</button>
+		</form>
+
+                 <p>已有的评论：
+                 <!-- 对应循环显示评论 -->
+                 {% for cid in ccommit%}
+                  <p>作者：{{cauthor}}                 时间: {{ctime}} </p>
+                  {{ccommit}}
+                  {% end %}
+                  <hr>
+                  </p> 
+		<br> 
 	</div>
+</div>
 </div>
 
 <br>
@@ -132,8 +118,8 @@ d[today.getDay()+1],
 "</font>");
 </script> 
 </p>
-          <p align="center" >
-          <font color=#FF6600 style='font-size:15pt;font-family:'宋体' '>
-          ©小亢的作品
-          </font>
-          </p>  
+      <p align="center" >
+      <font color=#FF6600 style='font-size:15pt;font-family:'宋体' '>
+      ©小亢的作品
+      </font>
+      </p>  
